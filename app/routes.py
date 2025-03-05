@@ -6,7 +6,12 @@ import os
 import pandas as pd
 from app.utils import extract_features, check_malicious_db, decode_qr_image
 
-bp = Blueprint('routes', __name__)
+bp = Blueprint('api', __name__)
+
+
+@bp.route('/api/status', methods=['GET'])
+def api_status():
+    return jsonify({"status": "ok"})
 
 # 머신러닝 로드
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
