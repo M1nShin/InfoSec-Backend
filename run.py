@@ -13,5 +13,6 @@ app.register_blueprint(bp)
 
 if __name__ == '__main__':
     PORT = int(os.getenv("PORT", 5000))
-    print(f"🚀 Flask 서버 실행 중! PORT: {PORT}")  # 실행 로그 확인
-    app.run(host='0.0.0.0', port=PORT)
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1")
+
+    app.run(host='0.0.0.0', port=PORT, debug=debug_mode)

@@ -8,9 +8,6 @@ from app.utils import extract_features, check_malicious_db, decode_qr_image, is_
 
 bp = Blueprint('api', __name__)
 
-@bp.route('/', methods=['GET'])
-def home():
-    return jsonify({"message": "Flask API is running!"})
 
 @bp.route('/api/status', methods=['GET'])
 def api_status():
