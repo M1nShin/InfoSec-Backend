@@ -1,6 +1,7 @@
 # QR 코드 처리 및 URL 분석 함수 관리 파일
 
 import sqlite3
+import re
 import os
 import cv2
 import numpy as np
@@ -30,14 +31,25 @@ def extract_features(url):
 
 # 악성 URL DB 조회 함수
 def check_malicious_db(url):
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM processed_urls WHERE url = ?", (url,))
-    count = cursor.fetchone()[0]
-    conn.close()
-    return count > 0 # DB(O) -> 악성 URL
+    """DB에서 URL이 악성인지 확인"""
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM processed_urls WHERE url = ?", (url,))
+        count = cursor.fetchone()[0]
+    return count > 0  # DB에 존재하면 악성 URL
 
-# QR 이미지 URL 추출
+# URL 유효성 검사 함수
+def is_valid_url(data):
+    url_pattern = re.compile(
+        r'^(https?:\/\/)?'  
+        r'(([A-Za-z0-9-]+\.)+[A-Za-z]{2,6}|'  
+        r'localhost|'  
+        r'(\d{1,3}\.){3}\d{1,3})'  
+        r'(:\d+)?(\/[^\s]*)?$'  
+    )
+    return re.match(url_pattern, data) is not None
+
+# QR 코드에서 URL 추출
 def decode_qr_image(image):
     try:
         npimg = np.frombuffer(image.read(), np.uint8)
@@ -46,6 +58,9 @@ def decode_qr_image(image):
         qr_detector = cv2.QRCodeDetector()
         data, _, _ = qr_detector.detectAndDecode(img)
 
-        return data if data else None
-    except Exception:
+        if not data or not is_valid_url(data):
+            return None  # URL이 아니면 무시
+        return data
+    except Exception as e:
+        print(f"QR 코드 해독 오류: {e}")
         return None
