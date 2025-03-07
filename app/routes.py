@@ -47,9 +47,9 @@ def analyze_qr_url():
     safe_prob, malicious_prob = probabilities[0] * 100, probabilities[1] * 100
 
     # 결과 반환
-    if safe_prob >= 60:
+    if safe_prob >= 30:
         return jsonify({"level": "safe", "message": "이 URL은 안전합니다."})
-    elif malicious_prob >= 50:
+    elif malicious_prob >= 70:
         return jsonify({"level": "danger", "message": "이 URL은 위험합니다!"})
     else:
         return jsonify({"level": "caution", "message": "주의가 필요한 URL입니다."})
